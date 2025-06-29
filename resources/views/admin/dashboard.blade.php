@@ -3,7 +3,8 @@
 
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
-        <form method="GET" action="{{ route('dashboard') }}" class="mb-4">
+        <form method="GET" action="{{ route('admin.dashboard') }}" class="mb-4">
+
             <label for="periode_id" class="form-label">Pilih Periode:</label>
             <select name="periode_id" id="periode_id" class="form-select" onchange="this.form.submit()">
                 @foreach ($periodes as $periode)
@@ -133,12 +134,17 @@
         </div>
 
         {{-- Pie Chart --}}
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Distribusi Status Pengajuan</h5>
-                <div id="pieChart" style="height: 350px;"></div>
+        @if ($pending + $revisi + $diterima + $ditolak > 0)
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Distribusi Status Pengajuan</h5>
+                    <div id="pieChart" style="height: 350px;"></div>
+                </div>
             </div>
-        </div>
+        @else
+            <div class="alert alert-info">Tidak ada data untuk ditampilkan di chart.</div>
+        @endif
+
 
         {{-- Riwayat Pengajuan Terbaru --}}
         <div class="card">
@@ -151,9 +157,10 @@
                             <div>
                                 <h6 class="mb-1">{{ $item->nama_kegiatan ?? 'Tanpa Nama' }}</h6>
                                 <small class="text-muted">
-                                    Diajukan oleh: {{ $item->mahasiswa->nama }} | Tanggal:
+                                    Diajukan oleh: {{ optional($item->mahasiswa)->nama ?? 'Tidak Diketahui' }} | Tanggal:
                                     {{ $item->created_at->format('d M Y') }}
                                 </small>
+
                             </div>
                             <div>
                                 @if ($item->status == 'pending')

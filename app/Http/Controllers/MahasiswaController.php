@@ -86,8 +86,12 @@ class MahasiswaController extends Controller
     {
         $sertifikat = Sertifikat::where('id', $id)
             ->where('mahasiswa_id', auth()->user()->user_id)
-            ->whereIn('status', ['pending', 'revisi'])
             ->firstOrFail();
+
+        // Cek status melalui accessor
+        if (!in_array($sertifikat->status, ['pending', 'revisi'])) {
+            return redirect()->route('mahasiswa.daftar')->with('error', 'Pengajuan tidak dapat dihapus.');
+        }
 
         // Hapus file jika ada
         if ($sertifikat->file_path && Storage::exists($sertifikat->file_path)) {
@@ -96,6 +100,6 @@ class MahasiswaController extends Controller
 
         $sertifikat->delete();
 
-        return redirect()->route('mahasiswa.daftar')->with('success', 'Pengajuan berhasil dihapus.');
+        return redirect()->route('daftar')->with('success', 'Pengajuan berhasil dihapus.');
     }
 }

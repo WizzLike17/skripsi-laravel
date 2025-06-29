@@ -22,42 +22,41 @@ class DashboardAdminController extends Controller
         $periodeId = $request->get('periode_id');
         $periodeAktif = $periodeId ? Periode::find($periodeId) : Periode::where('status', 1)->first();
 
+        // Validasi jika periode tidak ditemukan
+        if (!$periodeAktif) {
+            return redirect()->back()->with('error', 'Periode tidak ditemukan.');
+        }
+
+        // Gunakan id dari periode aktif
+        $periodeId = $periodeAktif->periode_id;
+
         // Ambil sertifikat berdasarkan periode yang dipilih
         $sertifikat = Sertifikat::with(['aktifitas', 'kompetisiMandiri', 'kemendikbud', 'mbkm', 'rekognisi', 'mahasiswa'])
-            ->when($periodeAktif, function ($query) use ($periodeAktif) {
-                $query->where('periode_id', $periodeAktif->periode_id);
-            })
+            ->where('periode_id', $periodeId)
             ->get();
 
         // Hitung total sertifikat
         $totalSertifikat = $sertifikat->count();
 
         // Hitung berdasarkan status
-        $pending = $sertifikat->filter(fn($item) => $item->status === 'pending')->count();
-        $revisi = $sertifikat->filter(fn($item) => $item->status === 'revisi')->count();
-        $diterima = $sertifikat->filter(fn($item) => $item->status === 'terima')->count();
-        $ditolak = $sertifikat->filter(fn($item) => $item->status === 'tolak')->count();
+        $pending = $sertifikat->where('status', 'pending')->count();
+        $revisi = $sertifikat->where('status', 'revisi')->count();
+        $diterima = $sertifikat->where('status', 'terima')->count();
+        $ditolak = $sertifikat->where('status', 'tolak')->count();
 
-        // Summary Cards
-        $aktifitas = Aktifitas::whereIn('id_aktifitas', function ($query) use ($periodeId) {
-            $query->select('id_aktifitas')->from('sertifikat')->where('periode_id', $periodeId)->whereNotNull('id_aktifitas'); // Tambahkan ini untuk memastikan id_aktifitas ada
-        })->get();
+        // Ambil id kategori dari sertifikat yang ada
+        $aktifitasIds = $sertifikat->pluck('id_aktifitas')->filter()->unique();
+        $kompetisiMandiriIds = $sertifikat->pluck('id_kompetisi')->filter()->unique();
+        $kemendikbudIds = $sertifikat->pluck('id_kmdb')->filter()->unique();
+        $mbkmIds = $sertifikat->pluck('id_mbkm')->filter()->unique();
+        $rekognisiIds = $sertifikat->pluck('id_rekognisi')->filter()->unique();
 
-        $kompetisiMandiri = KompetisiMandiri::whereIn('id_kompetisi', function ($query) use ($periodeId) {
-            $query->select('id_kompetisi')->from('sertifikat')->where('periode_id', $periodeId)->whereNotNull('id_kompetisi');
-        })->get();
-
-        $kemendikbud = Kemendikbud::whereIn('id_kmdb', function ($query) use ($periodeId) {
-            $query->select('id_kmdb')->from('sertifikat')->where('periode_id', $periodeId)->whereNotNull('id_kmdb');
-        })->get();
-
-        $mbkm = Mbkm::whereIn('id_mbkm', function ($query) use ($periodeId) {
-            $query->select('id_mbkm')->from('sertifikat')->where('periode_id', $periodeId)->whereNotNull('id_mbkm');
-        })->get();
-
-        $rekognisi = Rekognisi::whereIn('id_rekognisi', function ($query) use ($periodeId) {
-            $query->select('id_rekognisi')->from('sertifikat')->where('periode_id', $periodeId)->whereNotNull('id_rekognisi');
-        })->get();
+        // Ambil kategori terkait
+        $aktifitas = Aktifitas::whereIn('id_aktifitas', $aktifitasIds)->get();
+        $kompetisiMandiri = KompetisiMandiri::whereIn('id_kompetisi', $kompetisiMandiriIds)->get();
+        $kemendikbud = Kemendikbud::whereIn('id_kmdb', $kemendikbudIds)->get();
+        $mbkm = Mbkm::whereIn('id_mbkm', $mbkmIds)->get();
+        $rekognisi = Rekognisi::whereIn('id_rekognisi', $rekognisiIds)->get();
 
         // Riwayat pengajuan terbaru
         $riwayat = $sertifikat->sortByDesc('created_at')->take(10);
