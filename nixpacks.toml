@@ -1,11 +1,16 @@
-[phases.setup]
-nixPkgs = ["php", "php.packages.composer", "phpExtensions.pdo_mysql", "phpExtensions.mbstring", "phpExtensions.exif", "phpExtensions.fileinfo", "phpExtensions.openssl", "phpExtensions.tokenizer", "phpExtensions.gd"]
+# File: nixpacks.toml
 
-[phases.install]
-cmds = ["composer install --no-dev --optimize-autoloader"]
+[phases.setup]
+nixPkgs = ["php", "php81Packages.composer", "php81Packages.mysqlnd", "php81Packages.gd", "php81Packages.pdo", "php81Packages.pdo_mysql", "php81Packages.php-curl"]
 
 [phases.build]
-cmds = ["php artisan config:cache", "php artisan route:cache", "php artisan view:cache"]
+cmds = [
+  "composer install --no-dev --optimize-autoloader",
+  "php artisan config:clear",
+  "php artisan config:cache",
+  "php artisan route:cache",
+  "php artisan view:cache"
+]
 
 [start]
-cmd = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port $PORT"
+cmd = "php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port $PORT"
