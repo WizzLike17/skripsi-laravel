@@ -26,28 +26,27 @@ class AuthController extends Controller
         ]);
 
         // Cek apakah NIM ada di database
-        $user = User::where('nim', $credentials['nim'])->first();
+$user = User::where('nim', $credentials['nim'])->first();
+if (!$user) {
+    // Jika NIM tidak ditemukan
+    return back()->withErrors([
+        'nim' => 'NIM tidak ditemukan.',
+    ]);
+}
 
-        if (!$user) {
-            // Jika NIM tidak ditemukan
-            return back()->withErrors([
-                'nim' => 'NIM tidak ditemukan.',
-            ]);
-        }
+// Jika NIM ditemukan, cek password
+if (!Hash::check($credentials['password'], $user->password)) {
+    return back()->withErrors([
+        'password' => 'Password salah.',
+    ]);
+}
 
-        // Jika NIM ditemukan, cek password
-        if (!Hash::check($credentials['password'], $user->password)) {
-            return back()->withErrors([
-                'password' => 'Password salah.',
-            ]);
-        }
+// Login berhasil
+Auth::login($user);
+$request->session()->regenerate();
 
-        // Login berhasil
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->intended('/dashboard');
-    }
+    return redirect()->intended('/dashboard');
+}
 
     public function logout(Request $request)
     {

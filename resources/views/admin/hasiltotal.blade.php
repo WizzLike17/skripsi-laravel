@@ -3,45 +3,42 @@
 
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
-        <!-- 🔍 Form Filter -->
-        <form method="GET" action="{{ route('total') }}" class="p-3">
-            <div class="row g-2">
-                <!-- Input Pencarian -->
-                <div class="col-md-3">
-                    <input type="text" name="search" class="form-control" placeholder="Cari Nama atau NIM"
-                        value="{{ request('search') }}">
-                </div>
+        <form id="filterForm" method="GET" action="{{ route('total') }}" class="p-3">
+            <form method="GET" action="{{ route('total') }}" class="p-3">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <input type="text" name="search" class="form-control" placeholder="Cari Nama atau NIM"
+                            value="{{ request('search') }}">
+                    </div>
 
-                <!-- Filter Periode -->
-                <div class="col-md-3">
-                    <select name="periode_id" class="form-control">
-                        <option value="">-- Semua Periode --</option>
-                        @foreach ($periodes as $periode)
-                            <option value="{{ $periode->periode_id }}"
-                                {{ request('periode_id', $periodeAktif->periode_id ?? '') == $periode->periode_id ? 'selected' : '' }}>
-                                {{ $periode->nama_periode }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                    <div class="col-md-3">
+                        <select name="periode_id" class="form-control">
+                            <option value="" disabled selected>-- Semua Periode --</option>
 
-                <!-- Tombol Filter -->
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bx bx-search"></i> Cari
-                    </button>
-                </div>
+                            @foreach ($periodes as $periode)
+                                <option value="{{ $periode->periode_id }}"
+                                    {{ request('periode_id', $periodeAktif->periode_id ?? '') == $periode->periode_id ? 'selected' : '' }}>
+                                    {{ $periode->nama_periode }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <!-- Tombol Reset -->
-                <div class="col-md-2">
-                    <a href="{{ route('total') }}" class="btn btn-secondary w-100">
-                        <i class="bx bx-reset"></i> Reset
-                    </a>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bx bx-search"></i> Cari
+                        </button>
+                    </div>
+
+                    <div class="col-md-2">
+                        <a href="{{ route('total') }}" class="btn btn-secondary w-100">
+                            <i class="bx bx-reset"></i> Reset
+                        </a>
+                    </div>
                 </div>
-            </div>
+            </form>
         </form>
 
-        <!-- Tabel Hasil -->
         <div class="card mt-4">
             <h5 class="card-header d-flex justify-content-between align-items-center flex-wrap">
                 <span class="mb-2 mb-md-0">Hasil Total Sertifikat Mahasiswa</span>
@@ -110,7 +107,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $item->total_nilai ?? '0' }}</td>
-                                <td><span >{{ number_format($item->hasil, 2) }}</span></td>
+                                <td><span>{{ number_format($item->hasil, 2) }}</span></td>
                             </tr>
                         @empty
                             <tr>
@@ -135,4 +132,13 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('filterForm').addEventListener('submit', function(e) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('page'); // Hapus page parameter
+            window.history.replaceState({}, document.title, url.toString()); // Update URL tanpa reload
+        });
+    </script>
+
 @endsection

@@ -41,6 +41,8 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function () {
     Route::get('/dashboard-mahasiswa', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
 
     Route::get('/daftar-pengajuan', [MahasiswaController::class, 'daftarPengajuan'])->name('daftar');
+    Route::get('/mahasiswa/edit/{id}', [MahasiswaController::class, 'edit'])->name('mahasiswa.edit');
+
     Route::get('/pengajuan', [MahasiswaController::class, 'P'])->name('pengajuan');
     Route::delete('/sertifikat/{id}', [MahasiswaController::class, 'destroy'])->name('hapus');
 

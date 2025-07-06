@@ -90,7 +90,7 @@
 
     <!-- GitHub Buttons (optional) -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
@@ -109,26 +109,9 @@
             })));
         });
     </script>
-    <script>
-        // Menampilkan alasan revisi dan menyembunyikan nilai jika status revisi atau tolak dipilih
-        document.addEventListener('DOMContentLoaded', function() {
-            var statusSelect = document.getElementById('status');
-            if (statusSelect) {
-                statusSelect.addEventListener('change', function() {
-                    var revisiDiv = document.getElementById('revisi_alasan_div');
-                    var nilaiDiv = document.getElementById('nilai_div');
 
-                    if (this.value == 'revisi' || this.value == 'tolak') {
-                        revisiDiv.style.display = 'block';
-                        nilaiDiv.style.display = 'none';
-                    } else {
-                        revisiDiv.style.display = 'none';
-                        nilaiDiv.style.display = 'block';
-                    }
-                });
-            }
-        });
-    </script>
+
+
 
 </body>
 

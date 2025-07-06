@@ -12,12 +12,12 @@ use Illuminate\Support\Str;
 
 class AktifitasController extends Controller
 {
-    public function index()
-    {
-        $user = Auth::user();
-        $aktifitas = Aktifitas::where('mahasiswa_id', $user->user_id)->get();
-        return view('mahasiswa.aktifitas.daftar', compact('aktifitas'));
-    }
+    // public function index()
+    // {
+    //     $user = Auth::user();
+    //     $aktifitas = Aktifitas::where('mahasiswa_id', $user->user_id)->get();
+    //     return view('mahasiswa.aktifitas.daftar', compact('aktifitas'));
+    // }
 
     public function create()
     {
@@ -94,7 +94,7 @@ class AktifitasController extends Controller
             'validator_id' => null,
         ]);
 
-        return redirect()->route('aktifitas.index')->with('success', 'Data aktifitas berhasil disimpan.');
+        return redirect()->route('daftar')->with('success', 'Data aktifitas berhasil disimpan.');
     }
 
     public function edit($id)
@@ -175,7 +175,7 @@ class AktifitasController extends Controller
             ]);
         }
 
-        return redirect()->route('aktifitas.index')->with('success', 'Data aktifitas berhasil diperbarui dan status dikembalikan ke pending.');
+        return redirect()->route('daftar')->with('success', 'Data aktifitas berhasil diperbarui dan status dikembalikan ke pending.');
     }
 
     public function destroy($id)

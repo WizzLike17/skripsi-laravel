@@ -105,18 +105,9 @@ public function store(Request $request)
         'validator_id' => null,
     ]);
 
-    return redirect()->route('kompetisi-mandiri.index')->with('success', 'Data kompetisi mandiri berhasil disimpan.');
+    return redirect()->route('daftar')->with('success', 'Data kompetisi mandiri berhasil disimpan.');
 }
 
-    public function edit($id)
-    {
-        $user = Auth::user();
-        $kompetisi = KompetisiMandiri::where('id_kompetisi', $id)
-            ->where('mahasiswa_id', $user->user_id)
-            ->firstOrFail();
-
-        return view('mahasiswa.kompetisi-mandiri.edit', compact('kompetisi'));
-    }
 
 public function update(Request $request, $id)
 {
@@ -200,27 +191,7 @@ public function update(Request $request, $id)
         ]);
     }
 
-    return redirect()->route('kompetisi-mandiri.index')->with('success', 'Data kompetisi mandiri berhasil diperbarui dan status dikembalikan ke pending.');
+    return redirect()->route('daftar')->with('success', 'Data kompetisi mandiri berhasil diperbarui dan status dikembalikan ke pending.');
 }
 
-
-    public function destroy($id)
-    {
-        $kompetisi = KompetisiMandiri::findOrFail($id);
-
-        // Hapus file jika ada
-        if ($kompetisi->sertifikat && Storage::disk('public')->exists($kompetisi->sertifikat)) {
-            Storage::disk('public')->delete($kompetisi->sertifikat);
-        }
-        if ($kompetisi->foto_penyerahan && Storage::disk('public')->exists($kompetisi->foto_penyerahan)) {
-            Storage::disk('public')->delete($kompetisi->foto_penyerahan);
-        }
-        if ($kompetisi->surat_tugas && Storage::disk('public')->exists($kompetisi->surat_tugas)) {
-            Storage::disk('public')->delete($kompetisi->surat_tugas);
-        }
-
-        $kompetisi->delete();
-
-        return redirect()->route('kompetisi-mandiri.index')->with('success', 'Data kompetisi mandiri berhasil dihapus.');
-    }
 }

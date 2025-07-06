@@ -23,7 +23,7 @@
                                 <p class="text-muted">
                                     Untuk mengajukan prestasi terkait hibah dari Kementerian Pendidikan dan Kebudayaan.
                                 </p>
-                                <a href="{{ route('kemendikbud.index') }}"
+                                <a href="{{ route('kemendikbud.create') }}"
                                     class="btn btn-info btn-sm text-white mt-auto">Ajukan Sekarang</a>
                             </div>
                         </div>
@@ -41,7 +41,7 @@
                                 <p class="text-muted">
                                     Pengajuan kegiatan Merdeka Belajar Kampus Merdeka (MBKM).
                                 </p>
-                                <a href="{{ route('mbkm.index') }}" class="btn btn-success btn-sm mt-auto">Ajukan
+                                <a href="{{ route('mbkm.create') }}" class="btn btn-success btn-sm mt-auto">Ajukan
                                     Sekarang</a>
                             </div>
                         </div>
@@ -58,7 +58,7 @@
                                 <p class="text-muted">
                                     Pengajuan prestasi dari kompetisi yang diikuti secara mandiri oleh mahasiswa.
                                 </p>
-                                <a href="{{ route('kompetisi-mandiri.index') }}" class="btn btn-warning btn-sm mt-auto">Ajukan Sekarang</a>
+                                <a href="{{ route('kompetisi-mandiri.create') }}" class="btn btn-warning btn-sm mt-auto">Ajukan Sekarang</a>
                             </div>
                         </div>
                     </div>
@@ -74,7 +74,7 @@
                                 <p class="text-muted">
                                     Pengajuan aktivitas non-kompetitif yang diakui sebagai prestasi.
                                 </p>
-                                <a href="{{ route('aktifitas.index') }}" class="btn btn-primary btn-sm text-white mt-auto">Ajukan Sekarang</a>
+                                <a href="{{ route('aktifitas.create') }}" class="btn btn-primary btn-sm text-white mt-auto">Ajukan Sekarang</a>
                             </div>
                         </div>
                     </div>
@@ -91,7 +91,7 @@
                                     Untuk pengajuan sertifikat yang diakui sebagai pencapaian akademik atau
                                     non-akademik.
                                 </p>
-                                <a href="{{ route('rekognisi.index') }}" class="btn btn-danger btn-sm text-white mt-auto">Ajukan Sekarang</a>
+                                <a href="{{ route('rekognisi.create') }}" class="btn btn-danger btn-sm text-white mt-auto">Ajukan Sekarang</a>
                             </div>
                         </div>
                     </div>

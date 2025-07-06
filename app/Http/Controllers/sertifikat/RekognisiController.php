@@ -13,12 +13,7 @@ use Illuminate\Support\Str;
 
 class RekognisiController extends Controller
 {
-    public function index()
-    {
-        $user = Auth::user();
-        $rekognisi = Rekognisi::where('mahasiswa_id', $user->user_id)->get();
-        return view('mahasiswa.rekognisi.daftar', compact('rekognisi'));
-    }
+
 
     public function create()
     {
@@ -89,7 +84,7 @@ class RekognisiController extends Controller
             'status' => 'pending',
             'validator_id' => null, // Belum ada validator pada saat pengajuan
         ]);
-        return redirect()->route('rekognisi.index')->with('success', 'Data rekognisi berhasil disimpan.');
+        return redirect()->route('daftar')->with('success', 'Data rekognisi berhasil disimpan.');
     }
 
     public function edit($id)
@@ -167,23 +162,6 @@ class RekognisiController extends Controller
 
             ]);
 
-        return redirect()->route('rekognisi.index')->with('success', 'Data rekognisi berhasil diperbarui.');
-    }
-
-    public function destroy($id)
-    {
-        $rekognisi = Rekognisi::findOrFail($id);
-
-        if ($rekognisi->surat_tugas && Storage::disk('public')->exists($rekognisi->surat_tugas)) {
-            Storage::disk('public')->delete($rekognisi->surat_tugas);
-        }
-
-        if ($rekognisi->bukti_penyerahan && Storage::disk('public')->exists($rekognisi->bukti_penyerahan)) {
-            Storage::disk('public')->delete($rekognisi->bukti_penyerahan);
-        }
-
-        $rekognisi->delete();
-
-        return redirect()->route('rekognisi.index')->with('success', 'Data rekognisi berhasil dihapus.');
+        return redirect()->route('daftar')->with('success', 'Data rekognisi berhasil diperbarui.');
     }
 }

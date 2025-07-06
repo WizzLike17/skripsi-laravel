@@ -9,7 +9,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class SertifikatController extends Controller
 {
-
     public function index()
     {
         $query = Sertifikat::with(['periode', 'aktifitas', 'kompetisiMandiri', 'kemendikbud', 'mbkm', 'rekognisi', 'mahasiswa', 'validator'])
@@ -36,51 +35,51 @@ class SertifikatController extends Controller
 
     public function validasi(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:terima,tolak,revisi',
-            'nilai' => 'nullable|numeric|min:0|max:100',
-            'alasan_revisi' => $request->status === 'revisi' ? 'required|string|max:255' : 'nullable',
-        ]);
+$request->validate([
+    'status' => 'required|in:terima,tolak,revisi',
+    'nilai' => 'nullable|numeric|min:0|max:100',
+    'alasan_revisi' => $request->status === 'revisi' ? 'required|string|max:255' : 'nullable',
+]);
 
-        $sertifikat = Sertifikat::findOrFail($id);
-        $sertifikat->validator_id = auth()->user()->user_id;
-        $sertifikat->nilai = $request->nilai;
+$sertifikat = Sertifikat::findOrFail($id);
+$sertifikat->validator_id = auth()->user()->user_id;
+$sertifikat->nilai = $request->nilai;
 
-        if ($request->status === 'revisi') {
-            $sertifikat->revisi_alasan = trim($request->alasan_revisi);
-        } else {
-            $sertifikat->revisi_alasan = null;
-        }
+if ($request->status === 'revisi') {
+    $sertifikat->revisi_alasan = trim($request->alasan_revisi);
+} else {
+    $sertifikat->revisi_alasan = null;
+}
 
-        $sertifikat->save();
+$sertifikat->save();
 
-        if ($sertifikat->mbkm) {
-            $sertifikat->mbkm->status = $request->status;
-            $sertifikat->mbkm->save();
-        }
+if ($sertifikat->mbkm) {
+    $sertifikat->mbkm->status = $request->status;
+    $sertifikat->mbkm->save();
+}
 
-        if ($sertifikat->kemendikbud) {
-            $sertifikat->kemendikbud->status = $request->status;
-            $sertifikat->kemendikbud->save();
-        }
+if ($sertifikat->kemendikbud) {
+    $sertifikat->kemendikbud->status = $request->status;
+    $sertifikat->kemendikbud->save();
+}
 
-        if ($sertifikat->kompetisiMandiri) {
-            $sertifikat->kompetisiMandiri->status = $request->status;
-            $sertifikat->kompetisiMandiri->save();
-        }
+if ($sertifikat->kompetisiMandiri) {
+    $sertifikat->kompetisiMandiri->status = $request->status;
+    $sertifikat->kompetisiMandiri->save();
+}
 
-        if ($sertifikat->aktifitas) {
-            $sertifikat->aktifitas->status = $request->status;
-            $sertifikat->aktifitas->save();
-        }
+if ($sertifikat->aktifitas) {
+    $sertifikat->aktifitas->status = $request->status;
+    $sertifikat->aktifitas->save();
+}
 
-        if ($sertifikat->rekognisi) {
-            $sertifikat->rekognisi->status = $request->status;
-            $sertifikat->rekognisi->save();
-        }
+if ($sertifikat->rekognisi) {
+    $sertifikat->rekognisi->status = $request->status;
+    $sertifikat->rekognisi->save();
+}
 
-        return redirect()->route('sertifikat.index')->with('success', 'Sertifikat berhasil divalidasi.');
-    }
+return redirect()->route('sertifikat.index')->with('success', 'Sertifikat berhasil divalidasi.');
+}
 
     public function hasil(Request $request)
     {
@@ -91,7 +90,7 @@ class SertifikatController extends Controller
 
             if ($periodeAktif) {
                 $query->where('periode_id', $periodeAktif->periode_id);
-                $request->merge(['periode_id' => $periodeAktif->id]); 
+                $request->merge(['periode_id' => $periodeAktif->id]);
             }
         } elseif ($request->filled('periode_id')) {
             $query->where('periode_id', $request->periode_id);
@@ -127,81 +126,62 @@ class SertifikatController extends Controller
         return view('admin.hasil', compact('sertifikat', 'periodes'));
     }
 
-    public function getSertifikatWithMahasiswaNim()
-    {
-        $sertifikats = Sertifikat::with('mahasiswa')->get();
-
-        foreach ($sertifikats as $sertifikat) {
-            echo 'Tabel: ' . $sertifikat->getTable() . '<br>';
-            echo 'NIM Mahasiswa: ' . ($sertifikat->mahasiswa->nim ?? 'NIM tidak ada') . '<br>';
-            echo '---------------------------------<br>';
-        }
-    }
-
     public function total(Request $request)
     {
         $periodeAktif = \App\Models\Periode::where('status', 1)->first();
+        $periodeId = $request->filled('periode_id') ? $request->periode_id : $periodeAktif->periode_id ?? null;
 
-        if (!$request->has('periode_id')) {
-            $periodeId = $periodeAktif->periode_id ?? null;
-        } elseif ($request->filled('periode_id')) {
-            $periodeId = $request->periode_id; 
-        } else {
-            $periodeId = null; 
+        // Query dasar mahasiswa
+$query = \App\Models\User::where('role', 'mahasiswa')
+    ->when($request->filled('search'), function ($q) use ($request) {
+        $q->where(function ($query) use ($request) {
+            $query->where('nama', 'like', '%' . $request->search . '%')
+                ->orWhere('nim', 'like', '%' . $request->search . '%');
+        });
+    })
+    ->whereHas('sertifikats', function ($q) use ($periodeId) {
+        $q->where(function ($q2) {
+            $q2->whereHas('aktifitas', 
+            fn($sub) => 
+            $sub->where('status', 'terima'))
+                ->orWhereHas('kompetisiMandiri', fn($sub) => $sub->where('status', 'terima'))->orWhereHas('kemendikbud', fn($sub) => $sub->where('status', 'terima'))->orWhereHas('mbkm', fn($sub) => $sub->where('status', 'terima'))->orWhereHas('rekognisi', fn($sub) => $sub->where('status', 'terima'));
+        });
+
+        if ($periodeId) {
+            $q->where('periode_id', $periodeId);
         }
+    })
+    ->with([
+        'sertifikats' => function ($q) use ($periodeId) {
+            $q->where(function ($q2) {
+                $q2->whereHas('aktifitas', fn($sub) => $sub->where('status', 'terima'))->orWhereHas('kompetisiMandiri', fn($sub) => $sub->where('status', 'terima'))->orWhereHas('kemendikbud', fn($sub) => $sub->where('status', 'terima'))->orWhereHas('mbkm', fn($sub) => $sub->where('status', 'terima'))->orWhereHas('rekognisi', fn($sub) => $sub->where('status', 'terima'));
+            });
 
-        $allData = \App\Models\User::where('role', 'mahasiswa')
-            ->with([
-                'sertifikats' => function ($q) use ($periodeId) {
-                    
-                    $q->where(function ($q2) {
-                        $q2->whereHas('aktifitas', fn($sub) => $sub->where('status', 'terima'))->orWhereHas('kompetisiMandiri', fn($sub) => $sub->where('status', 'terima'))->orWhereHas('kemendikbud', fn($sub) => $sub->where('status', 'terima'))->orWhereHas('mbkm', fn($sub) => $sub->where('status', 'terima'))->orWhereHas('rekognisi', fn($sub) => $sub->where('status', 'terima'));
-                    });
+            if ($periodeId) {
+                $q->where('periode_id', $periodeId);
+            }
 
-                    
-                    if ($periodeId) {
-                        $q->where('periode_id', $periodeId);
-                    }
+            $q->with(['aktifitas', 'kompetisiMandiri', 'kemendikbud', 'mbkm', 'rekognisi']);
+        },
+    ])
+            ->paginate(10)
+            ->withQueryString();
 
-                    $q->with(['aktifitas', 'kompetisiMandiri', 'kemendikbud', 'mbkm', 'rekognisi']);
-                },
-            ])
-            
-            ->when($request->filled('search'), function ($q) use ($request) {
-                $q->where(function ($query) use ($request) {
-                    $query->where('nama', 'like', '%' . $request->search . '%')->orWhere('nim', 'like', '%' . $request->search . '%');
-                });
-            })
-            ->get()
-            
-            ->map(function ($user) {
-                $totalNilai = $user->sertifikats->sum('nilai');
+$mahasiswaSertifikat = $query->through(function ($user) {
+    $totalNilai = $user->sertifikats->sum('nilai');
 
-                return (object) [
-                    'mahasiswa' => $user,
-                    'total_nilai' => $totalNilai,
-                    'hasil' => $totalNilai / 5,
-                    'sertifikat' => $user->sertifikats,
-                ];
-            })
-            
-            ->filter(fn($item) => $item->total_nilai > 0)
-            ->values(); 
+    return (object) [
+        'mahasiswa' => $user,
+        'total_nilai' => $totalNilai,
+        'hasil' => $totalNilai / 5,
+        'sertifikat' => $user->sertifikats,
+    ];
+});
 
-        
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
-        $currentItems = $allData->slice(($currentPage - 1) * $perPage, $perPage)->values();
-        $paginated = new LengthAwarePaginator($currentItems, $allData->count(), $perPage, $currentPage, [
-            'path' => request()->url(),
-            'query' => array_merge($request->query(), ['periode_id' => $periodeId]),
-        ]);
-
-        
         $periodes = \App\Models\Periode::orderBy('tanggal_mulai', 'desc')->get();
 
         return view('admin.hasiltotal', [
-            'mahasiswaSertifikat' => $paginated,
+            'mahasiswaSertifikat' => $mahasiswaSertifikat,
             'periodes' => $periodes,
             'periodeAktif' => $periodeAktif,
         ]);

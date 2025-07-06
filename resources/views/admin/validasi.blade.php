@@ -37,7 +37,9 @@
                         @if ($sertifikat->aktifitas)
                             @include('admin.sertifikat.aktifitas', ['data' => $sertifikat->aktifitas])
                         @elseif ($sertifikat->kompetisiMandiri)
-                            @include('admin.sertifikat.kompetisi', ['data' => $sertifikat->kompetisiMandiri,])
+                            @include('admin.sertifikat.kompetisi', [
+                                'data' => $sertifikat->kompetisiMandiri,
+                            ])
                         @elseif ($sertifikat->kemendikbud)
                             @include('admin.sertifikat.kemendikbud', ['data' => $sertifikat->kemendikbud])
                         @elseif ($sertifikat->mbkm)
@@ -107,7 +109,7 @@
                                     switch ($sertifikat->status) {
                                         case 'pending':
                                             $statusClass = 'bg-warning text-dark';
-                                            break;                                       
+                                            break;
                                         case 'revisi':
                                             $statusClass = 'bg-info text-white';
                                             break;
@@ -175,30 +177,40 @@
         </div>
     </div>
 
-    {{-- Script untuk toggle alasan revisi --}}
-    @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const statusSelect = document.getElementById('status');
-                const revisiDiv = document.getElementById('revisi_alasan_div');
-                const revisiInput = document.getElementById('alasan_revisi');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSelect = document.getElementById('status');
+            const revisiDiv = document.getElementById('revisi_alasan_div');
+            const revisiInput = document.getElementById('alasan_revisi');
+            const nilaiDiv = document.getElementById('nilai_div');
+            const nilaiInput = document.getElementById('nilai'); // Input nilai
 
-                if (statusSelect && revisiDiv && revisiInput) {
-                    function toggleRevisiAlasan() {
-                        if (statusSelect.value === 'revisi') {
-                            revisiDiv.style.display = 'block';
-                        } else {
-                            revisiDiv.style.display = 'none';
-                            revisiInput.value = ''; // Kosongkan isinya
-                        }
-                    }
+            function handleStatusChange() {
+                const value = statusSelect.value;
 
-                    statusSelect.addEventListener('change', toggleRevisiAlasan);
-                    toggleRevisiAlasan(); // Jalankan saat halaman diload
+                if (value === 'revisi') {
+                    revisiDiv.style.display = 'block';
+                    nilaiDiv.style.display = 'none';
+                    // Jangan kosongkan revisiInput karena perlu diisi
+                } else if (value === 'tolak') {
+                    // Sembunyikan keduanya dan kosongkan isinya
+                    revisiDiv.style.display = 'none';
+                    nilaiDiv.style.display = 'none';
+
+                } else {
+                    // Status selain revisi dan tolak (misal terima)
+                    revisiDiv.style.display = 'none';
+                    nilaiDiv.style.display = 'block';
+
+                    if (revisiInput) revisiInput.value = '';
+                    // Nilai tidak dikosongkan supaya tetap tampil nilai yang ada
                 }
-            });
-        </script>
-    @endpush
+            }
 
-
+            if (statusSelect && revisiDiv && nilaiDiv) {
+                statusSelect.addEventListener('change', handleStatusChange);
+                handleStatusChange(); // Jalankan saat halaman dimuat
+            }
+        });
+    </script>
 @endsection

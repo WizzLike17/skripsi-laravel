@@ -29,27 +29,27 @@ class KemendikbudController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_kegiatan' => 'required',
-            'tanggal' => 'required|date',
-            'ketua' => 'required',
-            'anggota' => 'required',
-            'dospem' => 'required',
-            'keterlibatan_dospem' => 'required',
-            'prestasi' => 'required',
-            'lingkup_kegiatan' => 'required',
-            'lokasi_kegiatan' => 'required',
-            'sumber_biaya' => 'required',
-            'biaya' => 'required|numeric|min:0',
-            'surat' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'sertifikat' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        ]);
+$request->validate([
+    'nama_kegiatan' => 'required',
+    'tanggal' => 'required|date',
+    'ketua' => 'required',
+    'anggota' => 'required',
+    'dospem' => 'required',
+    'keterlibatan_dospem' => 'required',
+    'prestasi' => 'required',
+    'lingkup_kegiatan' => 'required',
+    'lokasi_kegiatan' => 'required',
+    'sumber_biaya' => 'required',
+    'biaya' => 'required|numeric|min:0',
+    'surat' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+    'sertifikat' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+]);
 
-        $periode = Periode::where('status', true)->where('tanggal_mulai', '<=', now())->where('tanggal_selesai', '>=', now())->first();
+$periode = Periode::where('status', true)->where('tanggal_mulai', '<=', now())->where('tanggal_selesai', '>=', now())->first();
 
-        if (!$periode) {
-            return back()->with('error', 'Tidak ada periode aktif. Pengajuan tidak dapat dilakukan.');
-        }
+if (!$periode) {
+    return back()->with('error', 'Tidak ada periode aktif. Pengajuan tidak dapat dilakukan.');
+}
 
         $user = Auth::user();
 
@@ -62,24 +62,24 @@ class KemendikbudController extends Controller
         $sertifikatName = Str::random(20) . '.' . $sertifikatFile->getClientOriginalExtension();
         $sertifikatFile->storeAs('uploads/sertifikat', $sertifikatName, 'public');
 
-        $kemendikbud = Kemendikbud::create([
-            'mahasiswa_id' => $user->user_id,
-            'validator_id' => null,
-            'status' => 'pending',
-            'nama_kegiatan' => $request->nama_kegiatan,
-            'surat' => $suratName, // Simpan hanya nama file
-            'tanggal' => $request->tanggal,
-            'ketua' => $request->ketua,
-            'anggota' => $request->anggota,
-            'dospem' => $request->dospem,
-            'keterlibatan_dospem' => $request->keterlibatan_dospem,
-            'prestasi' => $request->prestasi,
-            'sertifikat' => $sertifikatName, // Simpan hanya nama file
-            'lingkup_kegiatan' => $request->lingkup_kegiatan,
-            'sumber_biaya' => $request->sumber_biaya,
-            'biaya' => $request->biaya,
-            'lokasi_kegiatan' => $request->lokasi_kegiatan,
-        ]);
+$kemendikbud = Kemendikbud::create([
+'mahasiswa_id' => $user->user_id,
+'validator_id' => null,
+'status' => 'pending',
+'nama_kegiatan' => $request->nama_kegiatan,
+'surat' => $suratName, // Simpan hanya nama file
+'tanggal' => $request->tanggal,
+'ketua' => $request->ketua,
+'anggota' => $request->anggota,
+'dospem' => $request->dospem,
+'keterlibatan_dospem' => $request->keterlibatan_dospem,
+'prestasi' => $request->prestasi,
+'sertifikat' => $sertifikatName, // Simpan hanya nama file
+'lingkup_kegiatan' => $request->lingkup_kegiatan,
+'sumber_biaya' => $request->sumber_biaya,
+'biaya' => $request->biaya,
+'lokasi_kegiatan' => $request->lokasi_kegiatan,
+]);
 
         Sertifikat::create([
             'periode_id' => $periode->periode_id,
@@ -90,7 +90,7 @@ class KemendikbudController extends Controller
             'validator_id' => null,
         ]);
 
-        return redirect()->route('kemendikbud.index')->with('success', 'Pengajuan berhasil disimpan.');
+        return redirect()->route('daftar')->with('success', 'Pengajuan berhasil disimpan.');
     }
 
     public function edit($id)
@@ -176,7 +176,7 @@ class KemendikbudController extends Controller
             'nama_kegiatan' => $request->nama_kegiatan,
             'status' => 'pending', // Reset status sertifikat agar divalidasi ulang
         ]);
-        return redirect()->route('kemendikbud.index')->with('success', 'Data berhasil diperbarui dan status dikembalikan ke pending.');
+        return redirect()->route('daftar')->with('success', 'Data berhasil diperbarui dan status dikembalikan ke pending.');
     }
 
     public function destroy($id)

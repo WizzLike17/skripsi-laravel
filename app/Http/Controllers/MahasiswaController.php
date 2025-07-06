@@ -77,6 +77,36 @@ class MahasiswaController extends Controller
 
         return view('mahasiswa.daftar', compact('sertifikat'));
     }
+
+    public function edit($id)
+    {
+        $user = Auth::user();
+
+        // Ambil sertifikat milik user yang login
+        $sertifikat = Sertifikat::with(['aktifitas', 'kompetisiMandiri', 'kemendikbud', 'mbkm', 'rekognisi'])
+            ->where('mahasiswa_id', $user->user_id)
+            ->findOrFail($id);
+
+        if ($sertifikat->aktifitas) {
+            $aktifitas = $sertifikat->aktifitas;
+            return view('mahasiswa.aktifitas.edit', compact('aktifitas', 'sertifikat'));
+        } elseif ($sertifikat->kompetisiMandiri) {
+            $kompetisi = $sertifikat->kompetisiMandiri; // Ambil dari relasi
+            return view('mahasiswa.kompetisi-Mandiri.edit', compact('kompetisi', 'sertifikat'));
+        } elseif ($sertifikat->kemendikbud) {
+            $kemendikbud = $sertifikat->kemendikbud;
+            return view('mahasiswa.kemen.edit', compact('kemendikbud', 'sertifikat'));
+        } elseif ($sertifikat->mbkm) {
+            $mbkm = $sertifikat->mbkm;
+            return view('mahasiswa.mbkm.edit', compact('mbkm', 'sertifikat'));
+        } elseif ($sertifikat->rekognisi) {
+            $rekognisi = $sertifikat->rekognisi;
+            return view('mahasiswa.rekognisi.edit', compact('rekognisi', 'sertifikat'));
+        } else {
+            return redirect()->route('daftar')->with('error', 'Data tidak dapat diedit.');
+        }
+    }
+
     public function P()
     {
         return view('mahasiswa.pengajuan'); // Atur ke path view yang kamu inginkan
@@ -90,7 +120,7 @@ class MahasiswaController extends Controller
 
         // Cek status melalui accessor
         if (!in_array($sertifikat->status, ['pending', 'revisi'])) {
-            return redirect()->route('mahasiswa.daftar')->with('error', 'Pengajuan tidak dapat dihapus.');
+            return redirect()->route('daftar')->with('error', 'Pengajuan tidak dapat dihapus.');
         }
 
         // Hapus file jika ada

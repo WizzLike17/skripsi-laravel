@@ -22,7 +22,7 @@
                             <th>Jenis Sertifikat</th>
                             <th>Status</th>
                             <th>Tanggal Pengajuan</th>
-                            <th>Aksi</th> {{-- Kolom Aksi --}}
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
@@ -30,7 +30,6 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>
-                                    {{-- Ikon Kegiatan --}}
                                     @php
                                         $icon = 'bxs-file';
                                         $color = 'text-secondary';
@@ -88,9 +87,26 @@
                                 </td>
                                 <td>{{ $item->created_at->format('d-m-Y') }}</td>
 
-                                {{-- Aksi: Tampilkan hanya jika status masih bisa diedit --}}
+                                {{-- Aksi: Tampilkan hanya jika status masih bisa diedit atau direvisi --}}
                                 <td>
                                     @if (in_array($item->status, ['pending', 'revisi']))
+                                        {{-- Tombol Edit: Tampil jika status pending --}}
+                                        @if ($item->status == 'pending')
+                                            <a href="{{ route('mahasiswa.edit', $item->id) }}"
+                                                class="btn btn-sm btn-primary">
+                                                <i class="bx bx-edit"></i> Edit
+                                            </a>
+                                        @endif
+
+                                        {{-- Tombol Revisi: Tampil jika status revisi --}}
+                                        @if ($item->status == 'revisi')
+                                            <a href="{{ route('mahasiswa.edit', $item->id) }}"
+                                                class="btn btn-sm btn-warning ">
+                                                <i class="bx bx-edit-alt"></i> Revisi
+                                            </a>
+                                        @endif
+
+                                        {{-- Tombol Hapus: Tampil jika status pending atau revisi --}}
                                         <form action="{{ route('hapus', $item->id) }}" method="POST"
                                             style="display:inline-block;"
                                             onsubmit="return confirm('Yakin ingin menghapus pengajuan ini?');">
@@ -104,6 +120,7 @@
                                         <span class="text-muted">Tidak tersedia</span>
                                     @endif
                                 </td>
+
                             </tr>
                         @endforeach
                     </tbody>
